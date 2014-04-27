@@ -47,8 +47,11 @@ class Application
 		cv::Mat m_rgbImage;
 		cv::Mat m_depthImage;
 		cv::Mat m_outputImage;
+		cv::Mat m_baseFrame;
+		cv::Mat temp;
 
 		bool m_isFinished;
+		bool firstRun;
 };
 
 #endif // __APPLICATION_H

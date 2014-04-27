@@ -32,8 +32,36 @@ void Application::processFrame()
 	//
 	///////////////////////////////////////////////////////////////////////////
 
+
+
 	// Sample code brightening up the depth image to make it visible
-	m_depthImage *= 32;
+
+	
+
+	using namespace cv;
+	
+	//create Baseframe
+	if (firstRun) {
+		m_depthImage.copyTo(m_baseFrame);
+		firstRun = false;
+	}
+	absdiff(m_depthImage, m_baseFrame, temp);
+	// Because the depth cam does not create an exact image, we get rid of the small noises bz eroding it
+	erode(temp, temp,getStructuringElement(MORPH_RECT, Size(12,12))); 
+	// To gain the original size we dilate it afterwards
+	dilate(temp,temp,getStructuringElement(MORPH_RECT, Size(12,12)));
+	temp.convertTo(temp, CV_8UC1);
+	threshold(temp, temp, 60, 255, THRESH_TOZERO_INV);
+	threshold(temp, temp, 20, 255, 0);
+	//threshold(temp, temp, 60, 0, 0);								// | CV_THRESH_OTSU
+
+	//cvtColor(m_rgbImage,temp , CV_RGB2GRAY);
+	//threshold(temp, temp, 100, 255, CV_THRESH_BINARY);
+
+	temp *=32;
+	temp.copyTo(m_outputImage);
+
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -41,6 +69,7 @@ void Application::processFrame()
 Application::Application()
 {
 	m_isFinished = false;
+	firstRun = true; 
 
 	try
 	{
@@ -59,8 +88,13 @@ Application::Application()
 
     // create work buffer
 	m_rgbImage = cv::Mat(480, 640, CV_8UC3);
-	m_depthImage = cv::Mat(480, 640, CV_16UC1),
+	m_depthImage = cv::Mat(480, 640, CV_16UC1);
 	m_outputImage = cv::Mat(480, 640, CV_8UC1);
+	//temp = cv::Mat(480, 640, CV_8UC1);
+
+
+
+	
 }
 
 ////////////////////////////////////////////////////////////////////////////////
