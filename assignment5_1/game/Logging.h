@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include <boost/thread/mutex.hpp>
+#include <boost/thread.hpp>
 
 /**
  * @class Logging
