@@ -11,6 +11,7 @@
 
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
+#include <list>
 
 // Forward declarations
 class DepthCamera;
@@ -50,8 +51,17 @@ class Application
 		cv::Mat m_baseFrame;
 		cv::Mat temp;
 
+
 		bool m_isFinished;
 		bool firstRun;
+		bool footOnFloor;
+		bool recording;
+		cv::Mat data;
+		cv::Mat labels;
+		std::vector<cv::Point> pointList;
+		std::vector<cv::Point> points;
+
+
 };
 
 #endif // __APPLICATION_H

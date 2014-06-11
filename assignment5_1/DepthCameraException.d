@@ -1,1 +1,0 @@
-DepthCameraException.o: DepthCameraException.cpp DepthCameraException.h

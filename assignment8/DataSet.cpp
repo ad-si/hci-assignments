@@ -14,20 +14,17 @@
 
 #include <boost/tokenizer.hpp>
 
-////////////////////////////////////////////////////////////////////////////////
 
-float stringToFloat(std::string string)
-{
+float stringToFloat(std::string string) {
 	float number;
 	std::stringstream stringstream(string);
 	stringstream >> number;
 	return number;
 }
 
-////////////////////////////////////////////////////////////////////////////////
 
-void readDataSet(std::string fileName, int numberOfRows, cv::Mat &data, cv::Mat &labels)
-{
+void readDataSet(std::string fileName, int numberOfRows, cv::Mat &data, cv::Mat &labels) {
+    
 	data = cv::Mat(numberOfRows, 16, CV_32FC1);
 	labels = cv::Mat(numberOfRows, 1, CV_32FC1);
 
@@ -65,4 +62,3 @@ void readDataSet(std::string fileName, int numberOfRows, cv::Mat &data, cv::Mat 
 		row++;
 	}
 }
-

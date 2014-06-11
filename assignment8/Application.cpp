@@ -11,6 +11,8 @@
 #include "DepthCamera.h"
 #include "DepthCameraException.h"
 #include <iostream>
+#include <list>
+#include "DataSet.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -18,27 +20,8 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-void Application::processFrame()
-{
-	///////////////////////////////////////////////////////////////////////////
-	//
-	// To do:
-	//
-	// This method will be called every frame of the camera. Insert code here in
-	// order to fulfill the assignment. These images will help you doing so:
-	//
-	// * m_rgbImage: The image of the Kinect's RGB camera
-	// * m_depthImage: The image of the Kinects's depth sensor
-	// * m_outputImage: The image in which you can draw the touch circles.
-	//
-	///////////////////////////////////////////////////////////////////////////
-
-
-
-	// Sample code brightening up the depth image to make it visible
-
-	
-
+void Application::processFrame() {
+    
 	using namespace cv;
 	using namespace std;
 
@@ -90,26 +73,56 @@ void Application::processFrame()
 			maxContour = contours[i];
 		}
 	}
-	//cout << "MaxContourArea: "<< maxContourArea << '\n';
-	//cout << "MaxContourSize: " << (int)contours.size() << '\n';
-	//cout << "MaxContourIndex: " << maxContourIndex << '\n';
-	
 
-	//CHECK ONCE AGAIN BECAUSE IT DOES NOT MAKE SENSE BUT IF WE DO NOT THE WHOLE PROGRAMM CRASHES WITHOUT A DEBUGGING NOTICE, THIS TOOK US AT LEAST 4 HOURS
-	//!!!!!!!!!!!!!!!!!!!!!!!!11!!!!!!!!!!!!!!!!111!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11!!EINSELF!!!!!
-	if (maxContour.size() > 5) {
+	if (maxContour.size() > 20) {
+		footOnFloor = true;
+		if (!recording)
+			recording = true;
+
 		fittedBox = fitEllipse(maxContour);
 		//draw circle around center of fitted Ellipse
 		circle(temp, fittedBox.center, 35, Scalar(100, 150, 200, 0), 2);
-	}	
-	temp *=32;
+		//pointList.push_back(fittedBox.center);
+		//cout<<pointList; 
+		pointList.push_back(fittedBox.center); 
+		cout << pointList.back() << "\n"; 
+	}
+	else
+		footOnFloor = false;
+
+	if (recording && !footOnFloor) {
+		recording = false;
+
+		// do not search vor letter, if input was just noise; 
+		if(pointList.size() > 10) {
+			cout << "This number was recorded for: "<<pointList.size() << " frames\n\n"; 
+			cout << "The 8 points are:\n";
+			for (int i=0; i < 8; i++ ) {
+				points.push_back(pointList.at(int(pointList.size()*(i/8)))   );
+				cout << i+1 << ": " <<points.back() << "\n";
+			}
+		}
+		else
+			cout << "this was just noise! frames: " << pointList.size() << "\n";
+
+		//clear list to have an empty list if recording a new input
+		pointList.clear();
+		points.clear();
+	}
+	temp *= 32;
 	temp.copyTo(m_outputImage);
 
+
+    m_depthImage *= 32;
+    
+    // Linear interpolation
+    y = y0 + (y1-y0)*(x-x0)/(x1-x0);
 
 	//vector<Point> maxContour = contours.at(maxContourIndex);
 	//Mat convertedContour;
 	//Mat(contours[maxContourIndex]).convertTo(convertedContour, CV_32F);
 	//fittedBox = fitEllipse(convertedContour);
+
 
 }
 
@@ -119,6 +132,11 @@ Application::Application()
 {
 	m_isFinished = false;
 	firstRun = true; 
+	footOnFloor = false; 
+	recording = false;
+	
+	readDataSet("./pendigits.tra", 10, data, labels);
+	//std::cout << data; 
 
 	try
 	{
@@ -139,9 +157,12 @@ Application::Application()
 	m_rgbImage = cv::Mat(480, 640, CV_8UC3);
 	m_depthImage = cv::Mat(480, 640, CV_16UC1);
 	m_outputImage = cv::Mat(480, 640, CV_8UC1);
-	//temp = cv::Mat(480, 640, CV_8UC1);
+	temp = cv::Mat(480, 640, CV_8UC1);
 
-
+	//std::list<float> pointList(8,0);
+/*	for (int i =0; i<8, i++) {
+		std::cout << pointList.size() << "Elemente, "<< i << ": " << pointList[i];
+	}*/
 
 	
 }
